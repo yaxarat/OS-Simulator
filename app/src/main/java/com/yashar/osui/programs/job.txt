@@ -1,0 +1,6 @@
+LOAD program0
+LOAD program1
+LOAD program2
+LOAD program3
+LOAD program4
+EXE
