@@ -13,7 +13,7 @@ internal object Hardware {
         private set
 
     // Virtual Memory control
-    private val availableVMemory = 4096
+    private val availableVMemory = 1024
     var usedVMemory = 0
         private set
 

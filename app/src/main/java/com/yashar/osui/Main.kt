@@ -7,7 +7,7 @@ import kotlinx.coroutines.*
 
 object Main {
     private val oprt = Operator()
-    private val runManual: Boolean = false
+    private val manual: Boolean = false
     private val multiThread: Boolean = true
 
     // Main mainLoop for the simulator
@@ -37,7 +37,7 @@ object Main {
         var input: String
         println("Enter exit to exit the program.")
 
-        if(runManual) {
+        if(manual) {
             if (multiThread) {
                 var is1 = true
                 do {
@@ -50,7 +50,7 @@ object Main {
                             is1 -> {
                                 coroutineScope {
                                     launch(Dispatchers.Default) {
-                                        println("FROM: ${Thread.currentThread().name}")
+                                        println("Running from: ${Thread.currentThread().name}")
                                         CLI.argIn(input)
                                         mainLoop()
                                         is1 = false
@@ -59,7 +59,7 @@ object Main {
                             } else -> {
                                 coroutineScope {
                                     launch(Dispatchers.Default) {
-                                        println("FROM: ${Thread.currentThread().name}")
+                                        println("Running from: ${Thread.currentThread().name}")
                                         CLI.argIn(input)
                                         mainLoop()
                                         is1 = true
@@ -97,13 +97,16 @@ object Main {
         }
     }
 
-    fun GUI(arg: Int) = runBlocking {
-        JobCreator.makeProgram(arg)
+    fun GUI() = runBlocking {
         GlobalScope.launch(Dispatchers.Default) {
             do {
+                println("Running from: ${Thread.currentThread().name}")
                 mainLoop()
-                CLI.argIn("proc")
             } while (true)
         }
+    }
+
+    fun GUICreateJob(arg: Int) {
+        JobCreator.makeProgram(arg)
     }
 }

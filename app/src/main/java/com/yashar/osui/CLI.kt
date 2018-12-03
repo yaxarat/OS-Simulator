@@ -24,16 +24,18 @@ object CLI {
         } else if (argument.contains("exe")) {
             val splitArgument = argument.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
-            if (splitArgument.size == 2) {
-                Hardware.infCycle = false
-                Hardware.intCycle = Integer.valueOf(splitArgument[1]) - 1
-                oprt.run()
-            } else if (splitArgument.size == 1) {
-                Hardware.infCycle = true
-                Hardware.intCycle = -1
-                oprt.run()
-            } else {
-                println("Specify the execution cycle count: (ex: exe 20)")
+            when {
+                splitArgument.size == 2 -> {
+                    Hardware.infCycle = false
+                    Hardware.intCycle = Integer.valueOf(splitArgument[1]) - 1
+                    oprt.run()
+                }
+                splitArgument.size == 1 -> {
+                    Hardware.infCycle = true
+                    Hardware.intCycle = -1
+                    oprt.run()
+                }
+                else -> println("Specify the execution cycle count: (ex: exe 20)")
             }
         } else {
             println("Not a valid command.")

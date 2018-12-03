@@ -21,10 +21,22 @@ object JobCreator {
 
         while (count < numProcess) {
             var commandLen = 0
+            val commandLimit = randPicker(6, 20)
+            val crit1 = randPicker(0, commandLimit / 2)
+            val crit2 = randPicker(commandLimit / 2, commandLimit)
 
-            while (commandLen < randPicker(5, 15)) {
+            while (commandLen < commandLimit) {
                 val option = optionPicker()
                 programTaskQueue.add(randPicker(450, 1700).toString())
+
+                when (commandLen) {
+                    crit1 -> {
+                        programTaskQueue.add("CS")
+                    }
+                    crit2 -> {
+                        programTaskQueue.add("CE")
+                    }
+                }
 
                 when (option) {
                     0 -> {

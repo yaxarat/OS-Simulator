@@ -13,10 +13,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        Main.GUI()
+
         addProcessBtn.setOnClickListener {
             if (numProgramEt.text.isNotEmpty()) {
                 val arg = numProgramEt.text.toString().toInt()
-                Main.GUI(arg)
+                Main.GUICreateJob(arg)
             }
             updateUI()
         }
@@ -45,23 +47,28 @@ class MainActivity : AppCompatActivity() {
 
     fun updateUI() {
         Hardware.memoryCleaner()
-        memEt.text = "Free Memory: ${Hardware.getAvailableMemory()}"
+        memEt.text = "Free Memory: ${Hardware.getAvailableMemory()}Mb"
+        vmemEt.text = "Free VMemory: ${Hardware.getAvailableVMemory()}Mb"
         runningList.adapter = null
         waitingList.adapter = null
         finishedList.adapter = null
+        pKeyList.adapter = null
+        pValueList.adapter = null
         updateRunList()
         updateWaitList()
         updateFinishList()
+        updateKeyList()
+        updateValueList()
     }
 
     private fun updateWaitList() {
         val list = ProgramHandler.newQueue
         val nameList = ArrayList<String>()
         val pidList = ArrayList<Int>()
-        println("HERE $list")
         for (program in list) {
-            nameList.add(program.name)
-            //pidList.add(program.pid)
+            if (!nameList.contains(program.name)) {
+                nameList.add(program.name)
+            }
         }
         println(list.toString())
         waitListAdapter(nameList)
@@ -71,10 +78,10 @@ class MainActivity : AppCompatActivity() {
         val list = ProgramHandler.readyQueue
         val nameList = ArrayList<String>()
         val pidList = ArrayList<Int>()
-        println("HERE $list")
         for (program in list) {
-            nameList.add(program.name)
-            //pidList.add(program.pid)
+            if (!nameList.contains(program.name)) {
+                nameList.add(program.name)
+            }
         }
         println(list.toString())
         readyListAdapter(nameList)
@@ -84,13 +91,37 @@ class MainActivity : AppCompatActivity() {
         val list = ProgramHandler.exitQueue
         val nameList = ArrayList<String>()
         val pidList = ArrayList<Int>()
-        println("HERE $list")
         for (program in list) {
-            nameList.add(program.name)
-            //pidList.add(program.pid)
+            if (!nameList.contains(program.name)) {
+                nameList.add(program.name)
+            }
         }
         println(list.toString())
         exitListAdapter(nameList)
+    }
+
+    private fun updateKeyList() {
+        val list = PagingTable.listTable()
+        val nameList = ArrayList<String>()
+        for (name in list) {
+            if (!nameList.contains(name)) {
+                nameList.add(name)
+            }
+        }
+        println(list.toString())
+        kAdapter(nameList)
+    }
+
+    private fun updateValueList() {
+        val list = PagingTable.listVTavble()
+        val nameList = ArrayList<String>()
+        for (address in list) {
+            if (!nameList.contains(address)) {
+                nameList.add(address)
+            }
+        }
+        println(list.toString())
+        vAdapter(nameList)
     }
 
     private fun waitListAdapter(waitList: ArrayList<String>?) {
@@ -127,6 +158,32 @@ class MainActivity : AppCompatActivity() {
                 val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1)
                 adapter.addAll(exitList)
                 finishedList!!.adapter = adapter
+                count++
+            }
+        }
+    }
+
+    private fun kAdapter(keys: ArrayList<String>?) {
+        // set up adapter for listView
+        if (keys != null) {
+            var count = 0
+            while (count < keys.size) {
+                val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1)
+                adapter.addAll(keys)
+                pKeyList!!.adapter = adapter
+                count++
+            }
+        }
+    }
+
+    private fun vAdapter(values: ArrayList<String>?) {
+        // set up adapter for listView
+        if (values != null) {
+            var count = 0
+            while (count < values.size) {
+                val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1)
+                adapter.addAll(values)
+                pValueList!!.adapter = adapter
                 count++
             }
         }

@@ -2,6 +2,8 @@ import java.util.ArrayList
 import java.util.concurrent.ThreadLocalRandom
 
 class Program(val name: String, commandIn: ArrayList<String>, val size: Int) {
+    var inCritical = false
+    var priority = 0
     var runTime = 0
     var ranTime = 0
         private set

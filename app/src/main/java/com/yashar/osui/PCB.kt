@@ -1,3 +1,4 @@
+import com.yashar.osui.PagingTable
 import java.util.ArrayList
 import java.util.Collections
 
@@ -9,6 +10,7 @@ class PCB {
 
     fun addReadyQueue(program: Program, borrowed: Boolean) {
         val availableMemory = Hardware.getAvailableMemory()
+        val availableVMemory = Hardware.getAvailableVMemory()
 
         // Check if current program will fit in available memory
         if (program.size <= availableMemory) {
@@ -17,7 +19,14 @@ class PCB {
             if (!borrowed) {
                 Hardware.borrowMemory(program.size)
             }
-        } else {
+        } else if (program.size <= availableVMemory) {
+            program.state = State.READY
+            waitQueue.add(program)
+            if (!PagingTable.pageTable.containsKey(program)) {
+                PagingTable.page(program)
+                Hardware.borrowVMemory(program.size)
+            }
+        }else {
             program.state = State.NEW
             newQueue.add(program)
         }
@@ -31,6 +40,7 @@ class PCB {
 
     fun updateQueues() {
         val availableMemory = Hardware.getAvailableMemory()
+        val availableVMemory = Hardware.getAvailableVMemory()
         val removalList = ArrayList<Program>()
 
         for (program in this.readyQueue) {
@@ -47,12 +57,13 @@ class PCB {
             loadWaitingProgram(availableMemory)
         } else if (availableMemory > 0 && this.newQueue.size > 0) {
             loadNewProgram(availableMemory)
+        } else if (availableVMemory > 0 && this.newQueue.size > 0) {
+            loadNewProgram(availableVMemory)
         }
     }
 
     private fun removeProgram(programToRemove: ArrayList<Program>) {
         for (program in programToRemove) {
-            print("Removed PID: " + program.pid + " and relieved :" + program.size +"Mb\n")
             Hardware.relieveMemory(program.size)
             exitQueue.add(program)
             this.readyQueue.remove(program)
@@ -63,9 +74,17 @@ class PCB {
         for (index in waitQueue.indices) {
             val program = waitQueue[index]
             if (program.size < availableMemory) {
-                this.addReadyQueue(program, true)
-                this.waitQueue.removeAt(index)
-                break
+                if (PagingTable.pageTable.containsKey(program)) {
+                    Hardware.relieveVMemory(program.size)
+                    PagingTable.dePage(program)
+                    this.addReadyQueue(program, false)
+                    this.waitQueue.removeAt(index)
+                    break
+                } else {
+                    this.addReadyQueue(program, true)
+                    this.waitQueue.removeAt(index)
+                    break
+                }
             }
         }
     }
@@ -81,6 +100,7 @@ class PCB {
         }
     }
 
+    // RoundRobin
     private fun switchProgram() {
         // switch to programs that are not waiting for io
         var rotate = false

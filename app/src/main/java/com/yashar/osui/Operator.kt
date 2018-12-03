@@ -50,10 +50,21 @@ internal class Operator {
             processor.execute()
             currentQuantum++
 
-            if (currentQuantum > quantumLimit) {
+            if (currentQuantum > quantumLimit && !currentProgram.inCritical) {
+                when (currentProgram.priority) {
+                    0 -> {
+                        resetQuantum()
+                        processor.setProgramState(State.READY)
+                        InterruptHandler.sendSignal(true)
+                        currentProgram.priority++
+                    }
+                    else -> {
+                        resetQuantumPriority(currentProgram.priority * (-15))
+                        currentProgram.priority++
+                    }
+                }
+            } else if (currentQuantum > quantumLimit && currentProgram.inCritical) {
                 resetQuantum()
-                processor.setProgramState(State.READY)
-                InterruptHandler.sendSignal(true)
             }
         }
     }
@@ -68,6 +79,9 @@ internal class Operator {
 
         fun resetQuantum() {
             currentQuantum = 0
+        }
+        fun resetQuantumPriority(num: Int) {
+            currentQuantum = num
         }
     }
 }
